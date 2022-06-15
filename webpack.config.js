@@ -1,5 +1,8 @@
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 let mode = 'development';
 if(process.env.NODE_ENV === 'production') {
@@ -12,7 +15,7 @@ module.exports = {
         scripts: './src/js/index.js',
     },
     output: {
-        filename: 'js/[name].[contenthash].js',
+        filename: 'js/[name].[contenthash:6].js',
         assetModuleFilename: "assets/[hash:6][ext][query]",
         clean: true,
     },
@@ -31,11 +34,17 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css'
+            filename: 'css/[name].[contenthash:6].css'
         }),
         new HTMLWebpackPlugin({
             template: "./src/index.html"
-        })],
+        }),
+        new ESLintPlugin(),
+        new CleanWebpackPlugin({
+            verbose: true,
+            cleanOnceBeforeBuildPatterns: ['**/*', '!stats.json'],
+        }),
+    ],
     module: {
         rules: [
             {
@@ -43,7 +52,7 @@ module.exports = {
                 loader: "html-loader",
             },
             {
-                test: /\.(sa|sc|c)ss$/,
+                test: /\.((c|sa|sc)ss)$/i,
                 use: [
                     mode !== 'production'
                     ? 'style-loader'
@@ -55,10 +64,7 @@ module.exports = {
                             postcssOptions: {
                                 plugins: [
                                     [
-                                        "postcss-preset-env",
-                                        {
-                                            // Options
-                                        },
+                                        "postcss-preset-env"
                                     ],
                                 ],
                             },
@@ -76,19 +82,48 @@ module.exports = {
                 
             },
             {
-                test: /\.(woff|woff2|eot|ttf|otf)$/i,
-                type: 'asset/resource',
+                test: /\.(eot|ttf|woff|woff2)$/,
+                type: 'asset',
+                generator: {
+                    filename: 'fonts/[name].[hash:6][ext]',
+                },
             },
             {
-                test: /\.m?js$/,
+                test: /\.js$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    // options: {
-                    //     presets: ['@babel/preset-env']
-                    // }
-                }
+                use: ['babel-loader'],
             }
         ]
+    },
+    optimization: {
+        minimizer: [
+            '...',
+            new ImageMinimizerPlugin({
+            minimizer: {
+                implementation: ImageMinimizerPlugin.imageminMinify,
+                options: {
+                // Lossless optimization with custom option
+                // Feel free to experiment with options for better result for you
+                plugins: [
+                    ['gifsicle', { interlaced: true }],
+                    ['jpegtran', { progressive: true }],
+                    ['optipng', { optimizationLevel: 5 }],
+                    // Svgo configuration here https://github.com/svg/svgo#configuration
+                    [
+                    'svgo',
+                    {
+                        plugins: [
+                        {
+                            name: 'removeViewBox',
+                            active: false,
+                        },
+                        ],
+                    },
+                    ],
+                ],
+                },
+            },
+            }),
+        ],
     },
 }
