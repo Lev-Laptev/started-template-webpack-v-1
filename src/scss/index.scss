@@ -1,0 +1,9 @@
+@import 'base/reset';
+@import 'base/vars';
+@import 'base/fonts';
+
+h1 {
+  font-family: 'Prompt';
+  color: $black;
+  font-weight: 400;
+}
