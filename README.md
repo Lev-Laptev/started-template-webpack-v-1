@@ -1,23 +1,13 @@
-# started-template-webpack-v-1
-started-template-webpack-version-1
+<h1 align="center">Started Template Webpack</h3>
 
+## 📝 Table of Contents
 
-## Project setup
-```
-npm install
-```
+- [Getting Started](#start)
 
-### start
-```
-npm run start
-```
+## 🏁 Getting Started <a name = "start"></a>
 
-### dev
-```
-npm run dev
-```
-
-### build 
-```
-npm run build
-```
+- Clone or download the repo
+- `npm install` to install dependencies
+- `npm run start` to start
+- `npm run dev` to dev
+- `npm run build` to build
